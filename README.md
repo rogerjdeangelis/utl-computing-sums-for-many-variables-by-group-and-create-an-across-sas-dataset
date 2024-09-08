@@ -1,18 +1,9 @@
-# utl-computing-sums-for-many-variables-by-group-and-create-an-across-sas-dataset
-Create a sas dataset, not a listing, with variables and thier sums across
     %let pgm=utl-computing-sums-for-many-variables-by-group-and-create-an-across-sas-dataset;
 
     Only proc report can solve this simple problem?
 
-    Create a sas dataset, not a listing, with variables and thier sums across
-
-    All other solutions either involve the macro processor, repetittive coding,
-    solve just one case coding or use mutiple steps.
-
-    Many procedures can produce listings with sums across, proc print, tabulate ..,
-    however none create an across sas datsaet.
-
          Solutions
+            0 proc summary
             1 proc report
             2 sas datastep
             3 sas do_over
@@ -25,10 +16,6 @@ Create a sas dataset, not a listing, with variables and thier sums across
     https://tinyurl.com/hdhebcb2
     https://github.com/rogerjdeangelis/utl-computing-sums-for-many-variables-by-group-and-create-an-across-sas-dataset
 
-    SOAPBOX ON
-     There are many issues with ods not abiding by the layout of the printed listing.
-     Proc print with sumby needs an ods output?
-    SOAPBOX OFF
 
     /*               _     _
      _ __  _ __ ___ | |__ | | ___ _ __ ___
@@ -50,12 +37,12 @@ Create a sas dataset, not a listing, with variables and thier sums across
     /*                                     | run;quit;                          |                                               */
     /*                                     |                                    |                                               */
     /* B 19 89 26 80 96 40 16 32 13 79 75  |                                    | B  55 161  68 110 133 100  29  48  75 173 149 */
-    /* B 36 72 42 30 37 60 13 16 62 94 74  |                                    |                                               */
-    /*                                     |                                    |                                               */
-    /* C 17 88 46 88 95 65 29 25 56 34 88  |                                    | C  65 126  75 159 117 109  44  47 130  83 119 */
-    /* C 48 38 29 71 22 44 15 22 74 49 31  |                                    | D  92  94  81  88  97  14  19  40  42  72  22 */
-    /* D 92 94 81 88 97 14 19 40 42 72 22  |                                    | E  47  14  84  31  24  25  52  92  19  69  85 */
-    /* E 47 14 84 31 24 25 52 92 19 69 85  |                                    | F  69  48  57  77  19  23  31  69  60  21  69 */
+    /* B 36 72 42 30 37 60 13 16 62 94 74  | proc summary data=sd1.have nway;   |                                               */
+    /*                                     |   class l;                         |                                               */
+    /* C 17 88 46 88 95 65 29 25 56 34 88  |   var _numeric_;                   | C  65 126  75 159 117 109  44  47 130  83 119 */
+    /* C 48 38 29 71 22 44 15 22 74 49 31  |   output out=result                | D  92  94  81  88  97  14  19  40  42  72  22 */
+    /* D 92 94 81 88 97 14 19 40 42 72 22  |     (drop=_type_ _freq_) sum=;     | E  47  14  84  31  24  25  52  92  19  69  85 */
+    /* E 47 14 84 31 24 25 52 92 19 69 85  | run;                               | F  69  48  57  77  19  23  31  69  60  21  69 */
     /* F 69 48 57 77 19 23 31 69 60 21 69  |                                    | G  68  32  64  13  93  22  87  81  85  60  15 */
     /* G 68 32 64 13 93 22 87 81 85 60 15  |                                    | H  94  63 107  40 121  67 141 188 106  56 135 */
     /* H 10 42 92 27 24 41 55 90 45 14 36  |                                    | I  35  23  14  97  18  60  80  17  80  44  83 */
@@ -106,6 +93,47 @@ Create a sas dataset, not a listing, with variables and thier sums across
     O 98 73 39 47 67 47 74 79 70 50 66
     ;;;;
     run;quit;
+
+    /*___
+     / _ \   _ __  _ __ ___   ___   ___ _   _ _ __ ___  _ __ ___   __ _ _ __ _   _
+    | | | | | `_ \| `__/ _ \ / __| / __| | | | `_ ` _ \| `_ ` _ \ / _` | `__| | | |
+    | |_| | | |_) | | | (_) | (__  \__ \ |_| | | | | | | | | | | | (_| | |  | |_| |
+     \___/  | .__/|_|  \___/ \___| |___/\__,_|_| |_| |_|_| |_| |_|\__,_|_|   \__, |
+            |_|                                                              |___/
+    */
+
+    proc summary data=sd1.have nway;
+      class l;
+      var _numeric_;
+      output out=result
+        (drop=_type_ _freq_) sum=;
+    run;
+
+    /**************************************************************************************************************************/
+    /*                                                                                                                        */
+    /*  RESULT total obs=15                                                                                                   */
+    /*                                                                                                                        */
+    /*    L     XA     XB     XC     XD     XE     XF     XG     XH     XI     XJ     XK                                      */
+    /*                                                                                                                        */
+    /*    A     86    114    104    112    127     58     93    125    112    126     90                                      */
+    /*    B     55    161     68    110    133    100     29     48     75    173    149                                      */
+    /*    C     65    126     75    159    117    109     44     47    130     83    119                                      */
+    /*    D     92     94     81     88     97     14     19     40     42     72     22                                      */
+    /*    E     47     14     84     31     24     25     52     92     19     69     85                                      */
+    /*    F     69     48     57     77     19     23     31     69     60     21     69                                      */
+    /*    G     68     32     64     13     93     22     87     81     85     60     15                                      */
+    /*    H     94     63    107     40    121     67    141    188    106     56    135                                      */
+    /*    I     35     23     14     97     18     60     80     17     80     44     83                                      */
+    /*    J    112     38    124    127    167     76     55     57    127    148     41                                      */
+    /*    K     84     17     10     24     76     78     56     80     24     27     92                                      */
+    /*    L     13     41     72     54     86     34     84     54     84     87     33                                      */
+    /*    M     53     26     82     55     68     56     31     95     85     90     48                                      */
+    /*    N     43     99     27     46     59     12     64     74     30     27     32                                      */
+    /*    O     98     73     39     47     67     47     74     79     70     50     66                                      */
+    /*                                                                                                                        */
+    /*                                                                                                                        */
+    /**************************************************************************************************************************/
+
 
     /*                                                    _
     / |  _ __  _ __ ___   ___   _ __ ___ _ __   ___  _ __| |_
@@ -687,6 +715,15 @@ Create a sas dataset, not a listing, with variables and thier sums across
     https://github.com/rogerjdeangelis/utl-reshape-table-use-utl_odsrpt-macro-and-proc-tabulate
     https://github.com/rogerjdeangelis/utl-use-freq-and-corresp-table-output-to-avoid-tabulate-static-printouts
     https://github.com/rogerjdeangelis/utl-using-excel-to-get-a-usefull-proc-tabulate-output-table
+
+    /*              _
+      ___ _ __   __| |
+     / _ \ `_ \ / _` |
+    |  __/ | | | (_| |
+     \___|_| |_|\__,_|
+
+    */
+
 
     /*              _
       ___ _ __   __| |
